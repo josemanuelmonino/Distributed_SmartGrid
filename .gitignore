@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+mosquitto/data/
+mosquitto/log/
+nodered/data/node_modules/
