@@ -70,7 +70,7 @@ def standby(rng: random.Random) -> float:
 
 class EV:
     """Electric vehicle: plugged in between 19:00 and 22:00, charges at 7 kW up to 100% (40 kWh)."""
-    CAP_WH = 40000.0
+    CAP_WH = 40000.0 # 40 kWh
 
     def __init__(self, rng):
         self.rng = rng

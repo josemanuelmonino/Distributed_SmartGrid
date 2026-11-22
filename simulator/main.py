@@ -9,6 +9,7 @@ import argparse
 import json
 import threading
 import time
+import paho.mqtt.client as mqtt
 
 from .config import BASE_TOPIC, HOMES
 from .home_sim import HomeSimulator
@@ -22,7 +23,6 @@ def run_home(home_id, args):
             time.sleep(args.tick if not args.ticks else 0)
         return
 
-    import paho.mqtt.client as mqtt
     status_topic = f"{BASE_TOPIC}/{home_id}/status"
     client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=f"sim-{home_id}")
     # Last Will: if the simulator dies, the broker publishes "offline" (retained, QoS 1)
@@ -37,7 +37,7 @@ def run_home(home_id, args):
     client.on_connect = on_connect
     client.on_message = lambda c, u, m: sim.handle_command(m.topic, m.payload.decode())
     client.connect(args.host, args.port, keepalive=15)
-    client.loop_start()
+    client.loop_start()   # parallel thread for processing
     try:
         while True:
             sim.step()
@@ -55,7 +55,7 @@ def main():
     ap.add_argument("--speed", type=float, default=600.0, help="simulated seconds per real second (600 = 10 simulated min per second)")
     ap.add_argument("--tick", type=float, default=1.0, help="real seconds between publications")
     ap.add_argument("--start-hour", type=float, default=6.0)
-    ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--dry-run", action="store_true")   # not mqtt only print
     ap.add_argument("--ticks", type=int, default=0, help="dry-run only: number of steps")
     args = ap.parse_args()
     threads = [threading.Thread(target=run_home, args=(h, args), daemon=True) for h in args.homes]
