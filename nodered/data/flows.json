@@ -1,0 +1,1368 @@
+[
+    {
+        "id": "bf42db88da3ff346",
+        "type": "tab",
+        "label": "1. MQTT ingest and LWT",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "770909d5736a146f",
+        "type": "tab",
+        "label": "2. Smart EMS controller",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "55f0786cb5b520b6",
+        "type": "tab",
+        "label": "3. Dashboard and Analytics",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "4a8a2edb34d12a9f",
+        "type": "mqtt-broker",
+        "name": "Mosquitto Docker",
+        "broker": "mosquitto",
+        "port": 1883,
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "b187415881b25208",
+        "type": "ui-base",
+        "name": "My Dashboard",
+        "path": "/dashboard",
+        "appIcon": "",
+        "includeClientData": true,
+        "acceptsClientConfig": [
+            "ui-notification",
+            "ui-control"
+        ],
+        "showPathInSidebar": false,
+        "headerContent": "page",
+        "navigationStyle": "default",
+        "titleBarStyle": "default",
+        "showReconnectNotification": true,
+        "notificationDisplayTime": 1,
+        "showDisconnectNotification": true,
+        "allowInstall": false
+    },
+    {
+        "id": "efb39ab21d474663",
+        "type": "ui-theme",
+        "name": "Default Theme",
+        "colors": {
+            "surface": "#fcfcfd",
+            "primary": "#0d74ce",
+            "bgPage": "#f9f9fb",
+            "groupBg": "#ffffff",
+            "groupOutline": "#d9d9e0"
+        },
+        "sizes": {
+            "density": "default",
+            "pagePadding": "12px",
+            "groupGap": "12px",
+            "groupBorderRadius": "4px",
+            "widgetGap": "12px"
+        }
+    },
+    {
+        "id": "0bb522b4103628b9",
+        "type": "ui-page",
+        "name": "Microgrid operator",
+        "ui": "b187415881b25208",
+        "path": "/operator",
+        "icon": "home",
+        "layout": "grid",
+        "theme": "efb39ab21d474663",
+        "breakpoints": [
+            {
+                "name": "Default",
+                "px": "0",
+                "cols": "3"
+            },
+            {
+                "name": "Tablet",
+                "px": "576",
+                "cols": "6"
+            },
+            {
+                "name": "Small Desktop",
+                "px": "768",
+                "cols": "9"
+            },
+            {
+                "name": "Desktop",
+                "px": "1024",
+                "cols": "12"
+            }
+        ],
+        "tabs": [],
+        "order": 1,
+        "className": "",
+        "visible": "true",
+        "disabled": "false"
+    },
+    {
+        "id": "242c73c7d22b9902",
+        "type": "ui-group",
+        "name": "Fleet Status and Tariff",
+        "page": "0bb522b4103628b9",
+        "width": 6,
+        "height": 1,
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default",
+        "keepLoaded": false,
+        "tab": ""
+    },
+    {
+        "id": "4dea4a5b0ef65ccb",
+        "type": "ui-group",
+        "name": "Economics and thresholds",
+        "page": "0bb522b4103628b9",
+        "width": 6,
+        "height": 1,
+        "order": 2,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default",
+        "keepLoaded": false,
+        "tab": ""
+    },
+    {
+        "id": "74c565b2cf3a6460",
+        "type": "ui-group",
+        "name": "Grid Power exchange (W)",
+        "page": "0bb522b4103628b9",
+        "width": "12",
+        "height": 1,
+        "order": 3,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default",
+        "keepLoaded": false,
+        "tab": ""
+    },
+    {
+        "id": "0c4babb4e409df55",
+        "type": "ui-page",
+        "name": "Home detail and control",
+        "ui": "b187415881b25208",
+        "path": "/page2",
+        "icon": "home",
+        "layout": "grid",
+        "theme": "efb39ab21d474663",
+        "breakpoints": [
+            {
+                "name": "Default",
+                "px": "0",
+                "cols": "3"
+            },
+            {
+                "name": "Tablet",
+                "px": "576",
+                "cols": "6"
+            },
+            {
+                "name": "Small Desktop",
+                "px": "768",
+                "cols": "9"
+            },
+            {
+                "name": "Desktop",
+                "px": "1024",
+                "cols": "12"
+            }
+        ],
+        "tabs": [],
+        "order": 2,
+        "className": "",
+        "visible": "true",
+        "disabled": "false"
+    },
+    {
+        "id": "f4d44163058eb13a",
+        "type": "ui-group",
+        "name": "Home selector and manual control",
+        "page": "0c4babb4e409df55",
+        "width": 6,
+        "height": 1,
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default",
+        "keepLoaded": false,
+        "tab": ""
+    },
+    {
+        "id": "1eac3c69a3770ac2",
+        "type": "ui-group",
+        "name": "Real-time telemetry",
+        "page": "0c4babb4e409df55",
+        "width": 6,
+        "height": 1,
+        "order": 2,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default",
+        "keepLoaded": false,
+        "tab": ""
+    },
+    {
+        "id": "bae238ed3331f233",
+        "type": "ui-group",
+        "name": "Home energy balance (W)",
+        "page": "0c4babb4e409df55",
+        "width": "12",
+        "height": 1,
+        "order": 3,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default",
+        "keepLoaded": false,
+        "tab": ""
+    },
+    {
+        "id": "5fd5a42cab80d1fa",
+        "type": "mqtt in",
+        "z": "bf42db88da3ff346",
+        "name": "Subscribe to Summaries",
+        "topic": "microgrid/+/summary",
+        "qos": "0",
+        "datatype": "json",
+        "broker": "4a8a2edb34d12a9f",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 130,
+        "y": 240,
+        "wires": [
+            [
+                "96f080bc9a84e2ab"
+            ]
+        ]
+    },
+    {
+        "id": "96f080bc9a84e2ab",
+        "type": "function",
+        "z": "bf42db88da3ff346",
+        "name": "Update global Home state",
+        "func": "const data = msg.payload;\nif (!data || !data.home) return null;\n\n// Store the last summary for each home in global context\nconst homes = global.get('homes') || {};\nhomes[data.home] = data;\nglobal.set('homes', homes);\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 410,
+        "y": 240,
+        "wires": [
+            [
+                "622aa55aa91bf384",
+                "6d62a61bc76e61cb",
+                "8f7b8f89c2f55361"
+            ]
+        ]
+    },
+    {
+        "id": "cf0735d22ef4001e",
+        "type": "mqtt in",
+        "z": "bf42db88da3ff346",
+        "name": "Subscribe to Status (LWT)",
+        "topic": "microgrid/+/status",
+        "qos": "1",
+        "datatype": "json",
+        "broker": "4a8a2edb34d12a9f",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 130,
+        "y": 300,
+        "wires": [
+            [
+                "7c2f8475e5b0a936"
+            ]
+        ]
+    },
+    {
+        "id": "7c2f8475e5b0a936",
+        "type": "function",
+        "z": "bf42db88da3ff346",
+        "name": "Track Status and LWT",
+        "func": "const data = msg.payload;\n\n//if no data for a specific home\nif (!data || !data.home) return null;\n\nconst statuses = global.get(`statuses`) || {};\nconst prev = statuses[data.home];\nstatuses[data.home] = data.status;\n\n//we store the current status of each home in a single \n//map (statuses)\nglobal.set(`statuses`, statuses);\n\n//output 1: updated status map ({house:status})\nconst statusMsg = {payload: statuses};\n\n//output 2: if a house that was previously online\n//has disconnected (LWT), trigger an alarm\nif (data.status === `offline` && prev !== `offline`) {\n    const alarm = {\n        topic: `microgrid/alarms/${data.home}`,\n        payload: {\n            home: data.home,\n            severity: `CRITICAL`,\n            type: `NODE_OFFLINE_LWT`,\n            message: `Home ${data.home.toUpperCase()} disconnected (Last Will)`\n        }\n    };\n    return [statusMsg, alarm];\n}\n\n//output 3: formatted fleet status string for Dashboard text widget\nconst homesMap = global.get(`homes`) || {};\nconst homeIds = Object.keys(homesMap).sort();\nconst statusStr = homeIds.map(id => `${id.toUpperCase()}: ${(statuses[id] || \"online\").toUpperCase()}`).join(\" | \");\nconst fleetTextMsg = { payload: statusStr || \"Waiting...\" };\n\nreturn [statusMsg, null, fleetTextMsg]",
+        "outputs": 3,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 400,
+        "y": 300,
+        "wires": [
+            [],
+            [
+                "d9a7cb6d84ae2f96",
+                "5da7e4e0fd9a93d7",
+                "acefc75b5b63c43b"
+            ],
+            [
+                "42ee75805ad8fbf3"
+            ]
+        ]
+    },
+    {
+        "id": "622aa55aa91bf384",
+        "type": "debug",
+        "z": "bf42db88da3ff346",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 640,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "d9a7cb6d84ae2f96",
+        "type": "debug",
+        "z": "bf42db88da3ff346",
+        "name": "debug 2",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 620,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "5da7e4e0fd9a93d7",
+        "type": "mqtt out",
+        "z": "bf42db88da3ff346",
+        "name": "Publish LWT alarms",
+        "topic": "",
+        "qos": "1",
+        "retain": "false",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "4a8a2edb34d12a9f",
+        "x": 660,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "6d62a61bc76e61cb",
+        "type": "link out",
+        "z": "bf42db88da3ff346",
+        "name": "To EMS controller",
+        "mode": "link",
+        "links": [
+            "a77214872a8ce9cb"
+        ],
+        "x": 645,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "fdb3a4141fee0562",
+        "type": "mqtt in",
+        "z": "bf42db88da3ff346",
+        "name": "Subscribe to Device Telemetry",
+        "topic": "microgrid/+/+/telemetry",
+        "qos": "0",
+        "datatype": "json",
+        "broker": "4a8a2edb34d12a9f",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 140,
+        "y": 540,
+        "wires": [
+            [
+                "9d9d12d8ad67c14b"
+            ]
+        ]
+    },
+    {
+        "id": "9d9d12d8ad67c14b",
+        "type": "function",
+        "z": "bf42db88da3ff346",
+        "name": "Discover home devices",
+        "func": "const data = msg.payload;\nif (!data || !data.home || !data.device) return null;\n\n//we save each house's devices\nconst inventory = global.get(\"inventory\") || {};\nif (!inventory[data.home]) inventory[data.home] = {};\ninventory[data.home][data.device] = true;\nglobal.set(\"inventory\", inventory);\n\nreturn null;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 410,
+        "y": 540,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "acefc75b5b63c43b",
+        "type": "link out",
+        "z": "bf42db88da3ff346",
+        "name": "LWT Alert to UI",
+        "mode": "link",
+        "links": [
+            "b37792039311c077"
+        ],
+        "x": 575,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "8f7b8f89c2f55361",
+        "type": "link out",
+        "z": "bf42db88da3ff346",
+        "name": "Summary to Dashboard",
+        "mode": "link",
+        "links": [
+            "ce0a75fde4ba648b"
+        ],
+        "x": 645,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "42ee75805ad8fbf3",
+        "type": "link out",
+        "z": "bf42db88da3ff346",
+        "name": "Status to Dashboard",
+        "mode": "link",
+        "links": [
+            "eb9fbdb8c87ab6f8"
+        ],
+        "x": 575,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "a77214872a8ce9cb",
+        "type": "link in",
+        "z": "770909d5736a146f",
+        "name": "From ingest",
+        "links": [
+            "6d62a61bc76e61cb"
+        ],
+        "x": 105,
+        "y": 220,
+        "wires": [
+            [
+                "6c053c66c0abfc7a"
+            ]
+        ]
+    },
+    {
+        "id": "6c053c66c0abfc7a",
+        "type": "function",
+        "z": "770909d5736a146f",
+        "name": "Smart EMS rules",
+        "func": "const s = msg.payload;\nconst h = s.home;\nconst hour = s.sim_hour;\nconst inventory = global.get(\"inventory\") || {};\nconst devices = inventory[h] || {};\n\n// 1. Dynamic prices (€/kWh) based on the hour (sim_hour)\n//price by default\nlet tariff = 0.15;\nlet period = \"FLAT (0.15 €/kWh)\";\n\n//cheaper prices at nighttime (between 12 and 8 am)\nif (hour >= 0 && hour < 8){ \n    tariff = 0.08;\n    period = \"OFF-PEAK (0.08 €/kWh)\"\n\n//higher prices during peak hours (between 6 and 10 pm)\n} else if (hour >= 18 && hour < 22) {\n    tariff = 0.25;\n    period = \"PEAK (0.25 €/kWh)\"\n}\n\nglobal.set(\"current_tariff\", { rate: tariff, period: period, sim_time: s.sim_time });\n\n\n//2. Cumulative economic cost for each house (1 measurement every 10 sim min = 1/6 h)\n//all houses begin at 0 cost\nconst costs = global.get(\"costs\") || { h1: 0, h2: 0, h3: 0, h4: 0 };\nconst measurementCost = (s.grid_w / 1000.0) * (1.0 / 6.0) * tariff\ncosts[h] = Number(((costs[h] || 0) + measurementCost). toFixed(4));\n//store updated costs in global memory for dashboard\nglobal.set(\"costs\", costs);\n\n//Reading from dashboard\n//reads alarm thresholds configured on dashboard (by default 5500 W and 20% min battery)\nconst thresholds = global.get(\"thresholds\") || {max_grid_w: 5500, min_soc_pct: 20};\n//checks for possible manual orders given through dashboard\nconst overrides = global.get(\"overrides\") || {};\nconst homeOverride = overrides[h] || {};\n\n//RBE (Report By Exception): remember last command sent \n//and only send new ones (not duplicated with last))\nconst lastCmds = flow.get(\"lastCmds\") || {};\nif (!lastCmds[h]) lastCmds[h] = {};\n\nconst outCmds = []; //list of MQTT commands to be sent\nconst actions = []; //readable summary of system decisions\n\n\n//3. Battery mode decision (only for homes equipped with a battery)\nif (s.battery_soc_pct !== null && s.battery_soc_pct !== undefined) {\n    let targetMode = \"auto\";\n    if (homeOverride.battery) {\n        targetMode = homeOverride.battery; //giving priority to a battery mode\n                                        //forced through manual control\n    } else if (hour >= 0 && hour < 8 && s.battery_soc_pct < 80) {\n        targetMode = \"charge_grid\"; //charging the battery from grid is cheaper\n                                    //at night\n    } else if (hour >= 18 && hour < 22 && s.battery_soc_pct > 30) {\n        targetMode = \"discharge\"; //use charge from battery instead of grid during\n                                //peak expensive hours\n    }\n\n    //same RBE pattern, send command only if changed from previous\n    if (lastCmds[h].battery !== targetMode) {\n        lastCmds[h].battery = targetMode;\n        //add to outCmds the MQTT message required by contract:\n        //microgrid/h1/cmd/battery with {\"mode\": \"...\"}\n        outCmds.push({topic: `microgrid/${h}/cmd/battery`, payload: {mode: targetMode}});\n        //add readable note for log\n        actions.push(`Battery -> ${targetMode}`);\n    }\n}\n\n// 4. Automatic load shedding to correct overloads (only for EV and AC)\nconst overload = s.grid_w > thresholds.max_grid_w;\nconst peakLowBatt = (hour >= 18 && hour < 22) && (s.battery_soc_pct !== null && s.battery_soc_pct < thresholds.min_soc_pct + 5);\n\n// Track simulation ticks since last shed to prevent rapid on/off cycling (hunting)\nconst shedCooldown = flow.get(\"shedCooldown\") || {};\nif (!shedCooldown[h]) shedCooldown[h] = { ev: 0, ac: 0 };\nif (shedCooldown[h].ev > 0) shedCooldown[h].ev--;\nif (shedCooldown[h].ac > 0) shedCooldown[h].ac--;\n\n// EV control (only for houses that publish 'ev' telemetry)\nif (devices.ev) {\n    let evState = lastCmds[h].ev || \"on\";\n    if (homeOverride.ev) {\n        evState = homeOverride.ev;\n    } else if (overload || peakLowBatt) {\n        evState = \"off\";\n        shedCooldown[h].ev = 6; // Wait 6 ticks (1 simulated hour) before trying to restore EV\n    } else if (shedCooldown[h].ev === 0 && (s.grid_w + 7000) < thresholds.max_grid_w) {\n        evState = \"on\"; // Only restore EV if adding ~7000 W will NOT cause a new overload\n    }\n\n    if (lastCmds[h].ev !== evState) {\n        lastCmds[h].ev = evState;\n        outCmds.push({topic: `microgrid/${h}/cmd/load/ev`, payload: {state: evState}});\n        actions.push(`EV -> ${evState}`);\n    }\n}\n\n// AC control (only for houses that publish 'ac' telemetry)\nif (devices.ac) {\n    let acState = lastCmds[h].ac || \"on\";\n    if (homeOverride.ac) {\n        acState = homeOverride.ac;\n    } else if (s.grid_w > thresholds.max_grid_w + 1000) {\n        acState = \"off\";\n        shedCooldown[h].ac = 3; // Wait 3 ticks (30 simulated min) before trying to restore AC\n    } else if (shedCooldown[h].ac === 0 && (s.grid_w + 2000) < thresholds.max_grid_w) {\n        acState = \"on\"; // Only restore AC if adding ~2000 W will NOT cause a new overload\n    }\n\n    if (lastCmds[h].ac !== acState) {\n        lastCmds[h].ac = acState;\n        outCmds.push({topic: `microgrid/${h}/cmd/load/ac`, payload: {state: acState}});\n        actions.push(`AC -> ${acState}`);\n    }\n}\nflow.set(\"shedCooldown\", shedCooldown);\nflow.set(\"lastCmds\", lastCmds);\n\n\n//5. Operational alarms (low battery or grid overload)\nlet alarmMsg = null;\nconst lastAlarms = flow.get(\"lastAlarms\") || {}; //to avoid duplicate alarms while a problem is still active\n\n//if the house has a battery and its charge is below the threshold\nif (s.battery_soc_pct !== null && s.battery_soc_pct < thresholds.min_soc_pct) {\n    if (lastAlarms[h] !== \"LOW_BATT\") { //if the alarm hasn't been sent yet\n        lastAlarms[h] = \"LOW_BATT\";\n        alarmMsg = {\n            topic: `microgrid/alarms/${h}`,\n            payload: {\n                home: h,\n                severity: \"WARNING\",\n                type: \"LOW_BATTERY\",\n                message: `${h.toUpperCase()} battery low (${s.battery_soc_pct}%)`\n            }\n        };\n    }\n//if the energy taken from the grid (consumed) is over the threshold\n} else if (s.grid_w > thresholds.max_grid_w + 1500) {\n    if (lastAlarms[h] !== \"OVERLOAD\") { //if the alarm hasn't been sent yet\n        lastAlarms[h] = \"OVERLOAD\";\n        alarmMsg = {\n            topic: `microgrid/alarms/${h}`,\n            payload: {\n                home: h,\n                severity: \"WARNING\",\n                type: \"GRID_OVERLOAD\",\n                message: `${h.toUpperCase()} grid overload (${s.grid_w} W)`\n            }\n        };\n    }\n} else {\n    lastAlarms[h] = null; //the alarm history is cleared \n}\nflow.set(\"lastAlarms\", lastAlarms); //the alarm history is updated\n\nconst decisionMsg = actions.length > 0\n    //action summary for microgrid/decisions/${h}\n    ? { topic: `microgrid/decisions/${h}`, payload: { home: h, sim_time: s.sim_time, actions: actions } }\n    : null;\n\nreturn [outCmds, decisionMsg, alarmMsg];\n//returns 3 exits:\n//  - outCmds: commands for the simulators, such as cmd/battery\n//  - decisionMsg: decision summary (decisions/{h})\n//  - alarmMsg: alerts (alarms/{h})",
+        "outputs": 3,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 270,
+        "y": 220,
+        "wires": [
+            [
+                "aa41c3bd5ed0f101",
+                "51e6208bab667f48"
+            ],
+            [
+                "fdeac9e8c8258a79"
+            ],
+            [
+                "2ea6aa15c0dd16e0",
+                "61bdf6ddc421d8f4"
+            ]
+        ]
+    },
+    {
+        "id": "aa41c3bd5ed0f101",
+        "type": "mqtt out",
+        "z": "770909d5736a146f",
+        "name": "Publish Commands (QoS 1)",
+        "topic": "",
+        "qos": "1",
+        "retain": "false",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "4a8a2edb34d12a9f",
+        "x": 560,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "51e6208bab667f48",
+        "type": "debug",
+        "z": "770909d5736a146f",
+        "name": "debug 3",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 500,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "fdeac9e8c8258a79",
+        "type": "mqtt out",
+        "z": "770909d5736a146f",
+        "name": "Publish Decisions (QoS 0)",
+        "topic": "",
+        "qos": "0",
+        "retain": "false",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "4a8a2edb34d12a9f",
+        "x": 550,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "2ea6aa15c0dd16e0",
+        "type": "mqtt out",
+        "z": "770909d5736a146f",
+        "name": "Publish Operational Alarms (QoS 1)",
+        "topic": "",
+        "qos": "1",
+        "retain": "false",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "4a8a2edb34d12a9f",
+        "x": 580,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "61bdf6ddc421d8f4",
+        "type": "link out",
+        "z": "770909d5736a146f",
+        "name": "EMS Alerts to UI",
+        "mode": "link",
+        "links": [
+            "b37792039311c077"
+        ],
+        "x": 455,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "4fca57c2aac55745",
+        "type": "ui-text",
+        "z": "55f0786cb5b520b6",
+        "group": "242c73c7d22b9902",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Sim clock and tariff",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#717171",
+        "wrapText": false,
+        "className": "",
+        "value": "payload",
+        "valueType": "msg",
+        "x": 570,
+        "y": 340,
+        "wires": []
+    },
+    {
+        "id": "b37792039311c077",
+        "type": "link in",
+        "z": "55f0786cb5b520b6",
+        "name": "Incoming alarms",
+        "links": [
+            "61bdf6ddc421d8f4",
+            "acefc75b5b63c43b"
+        ],
+        "x": 75,
+        "y": 220,
+        "wires": [
+            [
+                "53b6b6bae6475a90"
+            ]
+        ]
+    },
+    {
+        "id": "53b6b6bae6475a90",
+        "type": "function",
+        "z": "55f0786cb5b520b6",
+        "name": "Format Toast",
+        "func": "const a = msg.payload; //alarm from payload\nif (!a || !a.message) return null; //to avoid errors\n\nreturn {\n    payload: `[${a.severity || \"ALERT\"} - ${(a.home || \"\").toUpperCase()}] ${a.message}`\n    //alarm will look like [severity - h] message\n};",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 230,
+        "y": 220,
+        "wires": [
+            [
+                "26b9b073c8a13f92"
+            ]
+        ]
+    },
+    {
+        "id": "26b9b073c8a13f92",
+        "type": "ui-notification",
+        "z": "55f0786cb5b520b6",
+        "ui": "b187415881b25208",
+        "position": "top right",
+        "colorDefault": false,
+        "color": "#d9534f",
+        "displayTime": "5",
+        "showCountdown": true,
+        "outputs": 1,
+        "allowDismiss": true,
+        "dismissText": "Close",
+        "allowConfirm": false,
+        "confirmText": "Confirm",
+        "showInput": false,
+        "inputType": "text",
+        "inputLabel": "",
+        "raw": false,
+        "className": "",
+        "name": "Dashboard alarm popup",
+        "x": 450,
+        "y": 220,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ce0a75fde4ba648b",
+        "type": "link in",
+        "z": "55f0786cb5b520b6",
+        "name": "Incomming summaries",
+        "links": [
+            "8f7b8f89c2f55361"
+        ],
+        "x": 75,
+        "y": 460,
+        "wires": [
+            [
+                "17723b54ceb329b2"
+            ]
+        ]
+    },
+    {
+        "id": "17723b54ceb329b2",
+        "type": "function",
+        "z": "55f0786cb5b520b6",
+        "name": "Prepare dashboard data",
+        "func": "const s = msg.payload;\nconst selected = flow.get(\"selected_home\") || \"h1\";\nconst tariff = global.get(\"current_tariff\") || { period: \"FLAT (0.15 €/kWh)\" };\nconst costs = global.get(\"costs\") || {};\nconst statuses = global.get(\"statuses\") || {};\n\n\n// 1. Comparative graph of grid consumption \nconst gridAllMsg = { topic: s.home.toUpperCase(), payload: s.grid_w };\n\n// 2. Simulated clock time and corresponding active tariff/prices\nconst clockMsg = { payload: `${s.sim_time} — ${tariff.period}` };\n\n// 3. Dynamic cumulative costs (€) for all homes\nconst homesMap = global.get(\"homes\") || {};\nconst homeIds = Object.keys(homesMap).sort();\nconst costStr = homeIds.map(id => `${id.toUpperCase()}: ${(costs[id] || 0).toFixed(2)} €`).join(\" | \");\nconst costMsg = { payload: costStr || \"Calculating...\" };\n\n// 4. Dynamic online/offline states for LWT\nconst statusStr = homeIds.map(id => `${id.toUpperCase()}: ${(statuses[id] || \"online\").toUpperCase()}`).join(\" | \");\nconst fleetMsg = { payload: statusStr || \"Waiting...\" };\n\n// 5-11. Widgets for the home selected in the dropdown\nif (s.home === selected) {\n    const solarMsg = { payload: s.generation_w }; //power generated by solar pannels\n    const consMsg = { payload: s.consumption_w };\n    const socMsg = { payload: s.battery_soc_pct !== null ? s.battery_soc_pct : 0 }; //current battery percentage (if applicable)\n    const batText = s.battery_soc_pct !== null ? s.battery_mode : \"none\";\n    const stateMsg = {\n        payload: `Battery: ${batText} | Shed: ${s.shed_loads.length ? s.shed_loads.join(\", \") : \"none\"}`\n    };\n    //curves to be shown in Home energy balance graph\n    const chartSolar = { topic: \"Solar (W)\", payload: s.generation_w };\n    const chartCons = { topic: \"Consumption (W)\", payload: s.consumption_w };\n    const chartGrid = { topic: \"Grid (W)\", payload: s.grid_w };\n\n    return [gridAllMsg, clockMsg, costMsg, fleetMsg, solarMsg, consMsg, socMsg, stateMsg, chartSolar, chartCons, chartGrid];\n}\n\nreturn [gridAllMsg, clockMsg, costMsg, fleetMsg, null, null, null, null, null, null, null];",
+        "outputs": 11,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 270,
+        "y": 460,
+        "wires": [
+            [
+                "0c9f2f4edf7e5e74"
+            ],
+            [
+                "4fca57c2aac55745"
+            ],
+            [
+                "1040158f6ef895e7"
+            ],
+            [
+                "db386ee690c2e08a"
+            ],
+            [
+                "7bc015b772dd7554"
+            ],
+            [
+                "719f47c72d197bc7"
+            ],
+            [
+                "3aa472638cf972ca"
+            ],
+            [
+                "2aa6dd3d5c42475d"
+            ],
+            [
+                "258a6913ca99fb56"
+            ],
+            [
+                "258a6913ca99fb56"
+            ],
+            [
+                "258a6913ca99fb56"
+            ]
+        ]
+    },
+    {
+        "id": "0c9f2f4edf7e5e74",
+        "type": "ui-chart",
+        "z": "55f0786cb5b520b6",
+        "group": "74c565b2cf3a6460",
+        "name": "",
+        "label": "Grid import (+) / export (-) [W]",
+        "order": 1,
+        "chartType": "line",
+        "category": "topic",
+        "categoryType": "msg",
+        "xAxisLabel": "",
+        "xAxisProperty": "",
+        "xAxisPropertyType": "timestamp",
+        "xAxisType": "time",
+        "xAxisFormat": "",
+        "xAxisFormatType": "auto",
+        "xmin": "",
+        "xmax": "",
+        "yAxisLabel": "",
+        "yAxisProperty": "payload",
+        "yAxisPropertyType": "msg",
+        "ymin": "-5000",
+        "ymax": "13000",
+        "bins": 10,
+        "action": "append",
+        "stackSeries": false,
+        "pointShape": "circle",
+        "pointRadius": 4,
+        "showLegend": true,
+        "removeOlder": 1,
+        "removeOlderUnit": "3600",
+        "removeOlderPoints": "",
+        "colors": [
+            "#0095ff",
+            "#ff0000",
+            "#ff7f0e",
+            "#2ca02c",
+            "#a347e1",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "textColor": [
+            "#666666"
+        ],
+        "textColorDefault": true,
+        "gridColor": [
+            "#e5e5e5"
+        ],
+        "gridColorDefault": true,
+        "width": "12",
+        "height": 8,
+        "className": "",
+        "interpolation": "linear",
+        "x": 610,
+        "y": 300,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "1040158f6ef895e7",
+        "type": "ui-text",
+        "z": "55f0786cb5b520b6",
+        "group": "4dea4a5b0ef65ccb",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Cumulative costs (€)",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#717171",
+        "wrapText": false,
+        "className": "",
+        "value": "payload",
+        "valueType": "msg",
+        "x": 580,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "db386ee690c2e08a",
+        "type": "ui-text",
+        "z": "55f0786cb5b520b6",
+        "group": "242c73c7d22b9902",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Fleet status (LWT)",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#717171",
+        "wrapText": false,
+        "className": "",
+        "value": "payload",
+        "valueType": "msg",
+        "x": 570,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "7bc015b772dd7554",
+        "type": "ui-gauge",
+        "z": "55f0786cb5b520b6",
+        "name": "",
+        "group": "1eac3c69a3770ac2",
+        "order": 3,
+        "value": "payload",
+        "valueType": "msg",
+        "width": 3,
+        "height": 3,
+        "gtype": "gauge-half",
+        "gstyle": "needle",
+        "title": "Solar panels production (W)",
+        "alwaysShowTitle": false,
+        "floatingTitlePosition": "top-left",
+        "units": "W",
+        "icon": "",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {
+                "from": "0",
+                "color": "#a3e4d7",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "1500",
+                "color": "#2ecc71",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "4000",
+                "color": "#27ae60",
+                "text": "",
+                "textType": "label"
+            }
+        ],
+        "min": 0,
+        "max": "6000",
+        "sizeThickness": 16,
+        "sizeGap": 4,
+        "sizeKeyThickness": 8,
+        "styleRounded": true,
+        "styleGlow": false,
+        "className": "",
+        "x": 600,
+        "y": 460,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "719f47c72d197bc7",
+        "type": "ui-gauge",
+        "z": "55f0786cb5b520b6",
+        "name": "",
+        "group": "1eac3c69a3770ac2",
+        "order": 2,
+        "value": "payload",
+        "valueType": "msg",
+        "width": 3,
+        "height": 3,
+        "gtype": "gauge-half",
+        "gstyle": "needle",
+        "title": "Power consumption (W)",
+        "alwaysShowTitle": false,
+        "floatingTitlePosition": "top-left",
+        "units": "W",
+        "icon": "",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {
+                "from": "0",
+                "color": "#5cd65c",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "3500",
+                "color": "#ffc800",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "5500",
+                "color": "#ea5353",
+                "text": "",
+                "textType": "label"
+            }
+        ],
+        "min": 0,
+        "max": "10000",
+        "sizeThickness": 16,
+        "sizeGap": 4,
+        "sizeKeyThickness": 8,
+        "styleRounded": true,
+        "styleGlow": false,
+        "className": "",
+        "x": 590,
+        "y": 500,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "3aa472638cf972ca",
+        "type": "ui-gauge",
+        "z": "55f0786cb5b520b6",
+        "name": "",
+        "group": "1eac3c69a3770ac2",
+        "order": 1,
+        "value": "payload",
+        "valueType": "msg",
+        "width": 3,
+        "height": 3,
+        "gtype": "gauge-half",
+        "gstyle": "needle",
+        "title": "Battery percentage (%)",
+        "alwaysShowTitle": false,
+        "floatingTitlePosition": "top-left",
+        "units": "%",
+        "icon": "",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {
+                "from": "0",
+                "color": "#d9534f",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "20",
+                "color": "#ffc800",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "50",
+                "color": "#5cd65c",
+                "text": "",
+                "textType": "label"
+            }
+        ],
+        "min": 0,
+        "max": "100",
+        "sizeThickness": 16,
+        "sizeGap": 4,
+        "sizeKeyThickness": 8,
+        "styleRounded": true,
+        "styleGlow": false,
+        "className": "",
+        "x": 590,
+        "y": 540,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "2aa6dd3d5c42475d",
+        "type": "ui-text",
+        "z": "55f0786cb5b520b6",
+        "group": "f4d44163058eb13a",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Active EMS state",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#717171",
+        "wrapText": false,
+        "className": "",
+        "value": "payload",
+        "valueType": "msg",
+        "x": 570,
+        "y": 580,
+        "wires": []
+    },
+    {
+        "id": "258a6913ca99fb56",
+        "type": "ui-chart",
+        "z": "55f0786cb5b520b6",
+        "group": "bae238ed3331f233",
+        "name": "",
+        "label": "Solar pannels production vs consumption vs grid (W)",
+        "order": 1,
+        "chartType": "line",
+        "category": "topic",
+        "categoryType": "msg",
+        "xAxisLabel": "",
+        "xAxisProperty": "",
+        "xAxisPropertyType": "timestamp",
+        "xAxisType": "time",
+        "xAxisFormat": "",
+        "xAxisFormatType": "auto",
+        "xmin": "",
+        "xmax": "",
+        "yAxisLabel": "",
+        "yAxisProperty": "payload",
+        "yAxisPropertyType": "msg",
+        "ymin": "-5000",
+        "ymax": "13000",
+        "bins": 10,
+        "action": "append",
+        "stackSeries": false,
+        "pointShape": "circle",
+        "pointRadius": 4,
+        "showLegend": true,
+        "removeOlder": 1,
+        "removeOlderUnit": "3600",
+        "removeOlderPoints": "",
+        "colors": [
+            "#0095ff",
+            "#ff0000",
+            "#ff7f0e",
+            "#2ca02c",
+            "#a347e1",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "textColor": [
+            "#666666"
+        ],
+        "textColorDefault": true,
+        "gridColor": [
+            "#e5e5e5"
+        ],
+        "gridColorDefault": true,
+        "width": "12",
+        "height": 8,
+        "className": "",
+        "interpolation": "linear",
+        "x": 680,
+        "y": 620,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "9335546c6caa8b2e",
+        "type": "ui-number-input",
+        "z": "55f0786cb5b520b6",
+        "group": "4dea4a5b0ef65ccb",
+        "name": "Max grid limit (W)",
+        "label": "Max grid limit (W)",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "topic": "topic",
+        "topicType": "msg",
+        "min": "2000",
+        "max": "12000",
+        "step": "500",
+        "tooltip": "",
+        "delay": 300,
+        "passthru": true,
+        "sendOnDelay": false,
+        "sendOnBlur": true,
+        "sendOnEnter": true,
+        "className": "",
+        "clearable": false,
+        "icon": "",
+        "iconPosition": "left",
+        "iconInnerPosition": "inside",
+        "spinner": "default",
+        "x": 150,
+        "y": 680,
+        "wires": [
+            [
+                "6f9db27e8c78e9c0"
+            ]
+        ]
+    },
+    {
+        "id": "6f9db27e8c78e9c0",
+        "type": "function",
+        "z": "55f0786cb5b520b6",
+        "name": "Update grid threshold",
+        "func": "const t = global.get(\"thresholds\") || { max_grid_w: 5500, min_soc_pct: 20 };\nt.max_grid_w = Number(msg.payload);\nglobal.set(\"thresholds\", t);\nreturn null;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 400,
+        "y": 680,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "6a2ec22cb9f79724",
+        "type": "ui-dropdown",
+        "z": "55f0786cb5b520b6",
+        "group": "f4d44163058eb13a",
+        "name": "Select home",
+        "label": "Select home",
+        "tooltip": "",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "multiple": false,
+        "chips": false,
+        "clearable": false,
+        "options": [
+            {
+                "label": "Home 1",
+                "value": "h1",
+                "type": "str"
+            },
+            {
+                "label": "Home 2",
+                "value": "h2",
+                "type": "str"
+            },
+            {
+                "label": "Home 3",
+                "value": "h3",
+                "type": "str"
+            },
+            {
+                "label": "Home 4",
+                "value": "h4",
+                "type": "str"
+            }
+        ],
+        "payload": "",
+        "topic": "topic",
+        "topicType": "msg",
+        "className": "",
+        "typeIsComboBox": true,
+        "msgTrigger": "onChange",
+        "x": 130,
+        "y": 740,
+        "wires": [
+            [
+                "2bc0a19099cd4bb7"
+            ]
+        ]
+    },
+    {
+        "id": "2bc0a19099cd4bb7",
+        "type": "function",
+        "z": "55f0786cb5b520b6",
+        "name": "Set selected home",
+        "func": "flow.set(\"selected_home\", msg.payload);\nreturn null;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 390,
+        "y": 740,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "fa488ec266353001",
+        "type": "ui-dropdown",
+        "z": "55f0786cb5b520b6",
+        "group": "f4d44163058eb13a",
+        "name": "Battery mode override",
+        "label": "Battery mode override",
+        "tooltip": "",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "multiple": false,
+        "chips": false,
+        "clearable": false,
+        "options": [
+            {
+                "label": "EMS automatic",
+                "value": "\"\"",
+                "type": "str"
+            },
+            {
+                "label": "Force Auto",
+                "value": "auto",
+                "type": "str"
+            },
+            {
+                "label": "Force Charge from Grid",
+                "value": "charge_grid",
+                "type": "str"
+            },
+            {
+                "label": "Force Discharge battery",
+                "value": "discharge",
+                "type": "str"
+            },
+            {
+                "label": "Force Idle",
+                "value": "idle",
+                "type": "str"
+            }
+        ],
+        "payload": "",
+        "topic": "topic",
+        "topicType": "msg",
+        "className": "",
+        "typeIsComboBox": true,
+        "msgTrigger": "onChange",
+        "x": 160,
+        "y": 800,
+        "wires": [
+            [
+                "6bc1037fdbbca7bd"
+            ]
+        ]
+    },
+    {
+        "id": "6bc1037fdbbca7bd",
+        "type": "function",
+        "z": "55f0786cb5b520b6",
+        "name": "Manual battery mode override",
+        "func": "const h = flow.get(\"selected_home\") || \"h1\"; \n//gets stored manual override orders\nconst overrides = global.get(\"overrides\") || {};\nif (!overrides[h]) overrides[h] = {};\n\nif (msg.payload === \"\") { //if first option has been chosen (EMS automatic)\n    delete overrides[h].battery; //deletes manual override order (Smart EMS rules will take charge again)\n    global.set(\"overrides\", overrides); //not override mode anymore\n    return null;\n}\n\noverrides[h].battery = msg.payload; //if any other override option, write it down (Smart EMS rules not in charge)\nglobal.set(\"overrides\", overrides);\n//sends MQTT command to override battery mode\nreturn { topic: `microgrid/${h}/cmd/battery`, payload: { mode: msg.payload } };",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 430,
+        "y": 800,
+        "wires": [
+            [
+                "852a35aded3835b1"
+            ]
+        ]
+    },
+    {
+        "id": "852a35aded3835b1",
+        "type": "mqtt out",
+        "z": "55f0786cb5b520b6",
+        "name": "Send manual command",
+        "topic": "",
+        "qos": "1",
+        "retain": "false",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "4a8a2edb34d12a9f",
+        "x": 730,
+        "y": 800,
+        "wires": []
+    },
+    {
+        "id": "eb9fbdb8c87ab6f8",
+        "type": "link in",
+        "z": "55f0786cb5b520b6",
+        "name": "Incomming fleet status updates",
+        "links": [
+            "42ee75805ad8fbf3"
+        ],
+        "x": 335,
+        "y": 320,
+        "wires": [
+            [
+                "db386ee690c2e08a"
+            ]
+        ]
+    }
+]
