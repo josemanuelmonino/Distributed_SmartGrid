@@ -32,3 +32,20 @@ are idempotent, so duplicates are harmless.
 | `microgrid/alarms/{home}` | 1 | no |
 | `microgrid/decisions/{home}` | 0 | no |
 
+
+## Federated learning (fl/ scripts <-> fl/ scripts)
+
+Only model weights travel over MQTT; the raw consumption data never leaves each home.
+Task: forecast the consumption of the next 10 simulated minutes (linear regression, FedAvg).
+
+| Topic | QoS | Retain | Payload |
+|---|---|---|---|
+| `microgrid/fl/global` | 1 | **yes** | `{run, round, total_rounds, weights, final}`: model to train in `round` (server -> clients) |
+| `microgrid/fl/{home}/update` | 1 | no | `{run, round, home, n, weights, mae_global}`: locally trained weights (client -> server) |
+| `microgrid/fl/metrics` | 0 | no | `{run, round, mae_avg, mae, clients}`: progress for the dashboard |
+
+Delivery semantics: QoS 1 (at-least-once) because losing an update would stall the round. Duplicates are
+harmless: the server keys updates by `home` and ignores other `(run, round)`; the clients skip a
+`(run, round)` they already trained. `global` is retained so a client that starts late gets the current
+round immediately. `run` (start timestamp of the server) separates different executions.
+The `fl` level never matches `microgrid/+/summary` nor `microgrid/+/status`, so it does not collide with the homes.

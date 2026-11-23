@@ -13,3 +13,11 @@ python -m simulator.main --dry-run --ticks 5 --homes h1   # no broker needed
 ```
 
 Topic and message contract: [docs/CONTRACT.md](docs/CONTRACT.md).
+
+## Federated learning
+
+```bash
+python -m fl.offline_demo                 # FedAvg in one process, no broker (to understand it)
+python -m fl.server --rounds 15           # aggregator (needs the broker)
+python -m fl.client h1                    # one terminal per home: h1, h2, h3, h4
+```
