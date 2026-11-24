@@ -515,7 +515,7 @@
         "type": "function",
         "z": "770909d5736a146f",
         "name": "Smart EMS rules",
-        "func": "const s = msg.payload;\nconst h = s.home;\nconst hour = s.sim_hour;\nconst inventory = global.get(\"inventory\") || {};\nconst devices = inventory[h] || {};\n\n// 1. Dynamic prices (€/kWh) based on the hour (sim_hour)\n//price by default\nlet tariff = 0.15;\nlet period = \"FLAT (0.15 €/kWh)\";\n\n//cheaper prices at nighttime (between 12 and 8 am)\nif (hour >= 0 && hour < 8){ \n    tariff = 0.08;\n    period = \"OFF-PEAK (0.08 €/kWh)\"\n\n//higher prices during peak hours (between 6 and 10 pm)\n} else if (hour >= 18 && hour < 22) {\n    tariff = 0.25;\n    period = \"PEAK (0.25 €/kWh)\"\n}\n\nglobal.set(\"current_tariff\", { rate: tariff, period: period, sim_time: s.sim_time });\n\n\n//2. Cumulative economic cost for each house (1 measurement every 10 sim min = 1/6 h)\n//all houses begin at 0 cost\nconst costs = global.get(\"costs\") || { h1: 0, h2: 0, h3: 0, h4: 0 };\nconst measurementCost = (s.grid_w / 1000.0) * (1.0 / 6.0) * tariff\ncosts[h] = Number(((costs[h] || 0) + measurementCost). toFixed(4));\n//store updated costs in global memory for dashboard\nglobal.set(\"costs\", costs);\n\n//Reading from dashboard\n//reads alarm thresholds configured on dashboard (by default 5500 W and 20% min battery)\nconst thresholds = global.get(\"thresholds\") || {max_grid_w: 5500, min_soc_pct: 20};\n//checks for possible manual orders given through dashboard\nconst overrides = global.get(\"overrides\") || {};\nconst homeOverride = overrides[h] || {};\n\n//RBE (Report By Exception): remember last command sent \n//and only send new ones (not duplicated with last))\nconst lastCmds = flow.get(\"lastCmds\") || {};\nif (!lastCmds[h]) lastCmds[h] = {};\n\nconst outCmds = []; //list of MQTT commands to be sent\nconst actions = []; //readable summary of system decisions\n\n\n//3. Battery mode decision (only for homes equipped with a battery)\nif (s.battery_soc_pct !== null && s.battery_soc_pct !== undefined) {\n    let targetMode = \"auto\";\n    if (homeOverride.battery) {\n        targetMode = homeOverride.battery; //giving priority to a battery mode\n                                        //forced through manual control\n    } else if (hour >= 0 && hour < 8 && s.battery_soc_pct < 80) {\n        targetMode = \"charge_grid\"; //charging the battery from grid is cheaper\n                                    //at night\n    } else if (hour >= 18 && hour < 22 && s.battery_soc_pct > 30) {\n        targetMode = \"discharge\"; //use charge from battery instead of grid during\n                                //peak expensive hours\n    }\n\n    //same RBE pattern, send command only if changed from previous\n    if (lastCmds[h].battery !== targetMode) {\n        lastCmds[h].battery = targetMode;\n        //add to outCmds the MQTT message required by contract:\n        //microgrid/h1/cmd/battery with {\"mode\": \"...\"}\n        outCmds.push({topic: `microgrid/${h}/cmd/battery`, payload: {mode: targetMode}});\n        //add readable note for log\n        actions.push(`Battery -> ${targetMode}`);\n    }\n}\n\n// 4. Automatic load shedding to correct overloads (only for EV and AC)\nconst overload = s.grid_w > thresholds.max_grid_w;\nconst peakLowBatt = (hour >= 18 && hour < 22) && (s.battery_soc_pct !== null && s.battery_soc_pct < thresholds.min_soc_pct + 5);\n\n// Track simulation ticks since last shed to prevent rapid on/off cycling (hunting)\nconst shedCooldown = flow.get(\"shedCooldown\") || {};\nif (!shedCooldown[h]) shedCooldown[h] = { ev: 0, ac: 0 };\nif (shedCooldown[h].ev > 0) shedCooldown[h].ev--;\nif (shedCooldown[h].ac > 0) shedCooldown[h].ac--;\n\n// EV control (only for houses that publish 'ev' telemetry)\nif (devices.ev) {\n    let evState = lastCmds[h].ev || \"on\";\n    if (homeOverride.ev) {\n        evState = homeOverride.ev;\n    } else if (overload || peakLowBatt) {\n        evState = \"off\";\n        shedCooldown[h].ev = 6; // Wait 6 ticks (1 simulated hour) before trying to restore EV\n    } else if (shedCooldown[h].ev === 0 && (s.grid_w + 7000) < thresholds.max_grid_w) {\n        evState = \"on\"; // Only restore EV if adding ~7000 W will NOT cause a new overload\n    }\n\n    if (lastCmds[h].ev !== evState) {\n        lastCmds[h].ev = evState;\n        outCmds.push({topic: `microgrid/${h}/cmd/load/ev`, payload: {state: evState}});\n        actions.push(`EV -> ${evState}`);\n    }\n}\n\n// AC control (only for houses that publish 'ac' telemetry)\nif (devices.ac) {\n    let acState = lastCmds[h].ac || \"on\";\n    if (homeOverride.ac) {\n        acState = homeOverride.ac;\n    } else if (s.grid_w > thresholds.max_grid_w + 1000) {\n        acState = \"off\";\n        shedCooldown[h].ac = 3; // Wait 3 ticks (30 simulated min) before trying to restore AC\n    } else if (shedCooldown[h].ac === 0 && (s.grid_w + 2000) < thresholds.max_grid_w) {\n        acState = \"on\"; // Only restore AC if adding ~2000 W will NOT cause a new overload\n    }\n\n    if (lastCmds[h].ac !== acState) {\n        lastCmds[h].ac = acState;\n        outCmds.push({topic: `microgrid/${h}/cmd/load/ac`, payload: {state: acState}});\n        actions.push(`AC -> ${acState}`);\n    }\n}\nflow.set(\"shedCooldown\", shedCooldown);\nflow.set(\"lastCmds\", lastCmds);\n\n\n//5. Operational alarms (low battery or grid overload)\nlet alarmMsg = null;\nconst lastAlarms = flow.get(\"lastAlarms\") || {}; //to avoid duplicate alarms while a problem is still active\n\n//if the house has a battery and its charge is below the threshold\nif (s.battery_soc_pct !== null && s.battery_soc_pct < thresholds.min_soc_pct) {\n    if (lastAlarms[h] !== \"LOW_BATT\") { //if the alarm hasn't been sent yet\n        lastAlarms[h] = \"LOW_BATT\";\n        alarmMsg = {\n            topic: `microgrid/alarms/${h}`,\n            payload: {\n                home: h,\n                severity: \"WARNING\",\n                type: \"LOW_BATTERY\",\n                message: `${h.toUpperCase()} battery low (${s.battery_soc_pct}%)`\n            }\n        };\n    }\n//if the energy taken from the grid (consumed) is over the threshold\n} else if (s.grid_w > thresholds.max_grid_w + 1500) {\n    if (lastAlarms[h] !== \"OVERLOAD\") { //if the alarm hasn't been sent yet\n        lastAlarms[h] = \"OVERLOAD\";\n        alarmMsg = {\n            topic: `microgrid/alarms/${h}`,\n            payload: {\n                home: h,\n                severity: \"WARNING\",\n                type: \"GRID_OVERLOAD\",\n                message: `${h.toUpperCase()} grid overload (${s.grid_w} W)`\n            }\n        };\n    }\n} else {\n    lastAlarms[h] = null; //the alarm history is cleared \n}\nflow.set(\"lastAlarms\", lastAlarms); //the alarm history is updated\n\nconst decisionMsg = actions.length > 0\n    //action summary for microgrid/decisions/${h}\n    ? { topic: `microgrid/decisions/${h}`, payload: { home: h, sim_time: s.sim_time, actions: actions } }\n    : null;\n\nreturn [outCmds, decisionMsg, alarmMsg];\n//returns 3 exits:\n//  - outCmds: commands for the simulators, such as cmd/battery\n//  - decisionMsg: decision summary (decisions/{h})\n//  - alarmMsg: alerts (alarms/{h})",
+        "func": "const s = msg.payload;\nconst h = s.home;\nconst hour = s.sim_hour;\nconst inventory = global.get(\"inventory\") || {};\nconst devices = inventory[h] || {};\n\n// 1. Dynamic prices (€/kWh) based on the hour (sim_hour)\n//price by default\nlet tariff = 0.15;\nlet period = \"FLAT (0.15 €/kWh)\";\n\n//cheaper prices at nighttime (between 12 and 8 am)\nif (hour >= 0 && hour < 8){ \n    tariff = 0.08;\n    period = \"OFF-PEAK (0.08 €/kWh)\"\n\n//higher prices during peak hours (between 6 and 10 pm)\n} else if (hour >= 18 && hour < 22) {\n    tariff = 0.25;\n    period = \"PEAK (0.25 €/kWh)\"\n}\n\nglobal.set(\"current_tariff\", { rate: tariff, period: period, sim_time: s.sim_time });\n\n\n//2. Cumulative economic cost for each house (1 measurement every 10 sim min = 1/6 h)\n//all houses begin at 0 cost\nconst costs = global.get(\"costs\") || { h1: 0, h2: 0, h3: 0, h4: 0 };\nconst measurementCost = (s.grid_w / 1000.0) * (1.0 / 6.0) * tariff\ncosts[h] = Number(((costs[h] || 0) + measurementCost). toFixed(4));\n//store updated costs in global memory for dashboard\nglobal.set(\"costs\", costs);\n\n//Reading from dashboard\n//reads alarm thresholds configured on dashboard (by default 5500 W and 20% min battery)\nconst thresholds = global.get(\"thresholds\") || {max_grid_w: 5500, min_soc_pct: 20};\n//checks for possible manual orders given through dashboard\nconst overrides = global.get(\"overrides\") || {};\nconst homeOverride = overrides[h] || {};\n\n//RBE (Report By Exception): remember last command sent \n//and only send new ones (not duplicated with last))\nconst lastCmds = flow.get(\"lastCmds\") || {};\nif (!lastCmds[h]) lastCmds[h] = {};\n\nconst outCmds = []; //list of MQTT commands to be sent\nconst actions = []; //readable summary of system decisions\n\n\n//3. Battery mode decision (only for homes equipped with a battery)\nif (s.battery_soc_pct !== null && s.battery_soc_pct !== undefined) {\n    let targetMode = \"auto\";\n    if (homeOverride.battery) {\n        targetMode = homeOverride.battery; //giving priority to a battery mode\n                                        //forced through manual control\n    } else if (hour >= 0 && hour < 8 && s.battery_soc_pct < 80) {\n        targetMode = \"charge_grid\"; //charging the battery from grid is cheaper\n                                    //at night\n    } else if (hour >= 18 && hour < 22 && s.battery_soc_pct > 30) {\n        targetMode = \"discharge\"; //use charge from battery instead of grid during\n                                //peak expensive hours\n    }\n    \n    // Send on change OR re-assert every hour if battery should be charging/discharging\n    const currentPeriodKey = `${targetMode}_${hour}`;\n\n        //same RBE pattern, send command only if changed from previous\n    if (lastCmds[h].battery !== currentPeriodKey) {\n        lastCmds[h].battery = currentPeriodKey;\n        //add to outCmds the MQTT message required by contract:\n        //microgrid/h1/cmd/battery with {\"mode\": \"...\"}\n        outCmds.push({topic: `microgrid/${h}/cmd/battery`, payload: {mode: targetMode}});\n        //add readable note for log\n        actions.push(`Battery -> ${targetMode}`);\n    }\n}\n\n// 4. Automatic load shedding to correct overloads (only for EV and AC)\nconst overload = s.grid_w > thresholds.max_grid_w;\nconst peakLowBatt = (hour >= 18 && hour < 22) && (s.battery_soc_pct !== null && s.battery_soc_pct < thresholds.min_soc_pct + 5);\n\n// Track simulation ticks since last shed to prevent rapid on/off cycling (hunting)\nconst shedCooldown = flow.get(\"shedCooldown\") || {};\nif (!shedCooldown[h]) shedCooldown[h] = { ev: 0, ac: 0 };\nif (shedCooldown[h].ev > 0) shedCooldown[h].ev--;\nif (shedCooldown[h].ac > 0) shedCooldown[h].ac--;\n\n// EV control (only for houses that publish 'ev' telemetry)\nif (devices.ev) {\n    let evState = lastCmds[h].ev || \"on\";\n    if (homeOverride.ev) {\n        evState = homeOverride.ev;\n    } else if (overload || peakLowBatt) {\n        evState = \"off\";\n        shedCooldown[h].ev = 4; // Wait 4 ticks (40 simulated mins) before trying to restore EV\n    } else if (shedCooldown[h].ev === 0 && (s.grid_w + 7200) < thresholds.max_grid_w) {\n        evState = \"on\"; // Only restore EV if adding ~7200 W will NOT cause a new overload\n    }\n\n    if (lastCmds[h].ev !== evState) {\n        lastCmds[h].ev = evState;\n        outCmds.push({topic: `microgrid/${h}/cmd/load/ev`, payload: {state: evState}});\n        actions.push(`EV -> ${evState}`);\n    }\n}\n\n// AC control (only for houses that publish 'ac' telemetry)\nif (devices.ac) {\n    let acState = lastCmds[h].ac || \"on\";\n    if (homeOverride.ac) {\n        acState = homeOverride.ac;\n    } else if (s.grid_w > thresholds.max_grid_w + 1000) {\n        acState = \"off\";\n        shedCooldown[h].ac = 3; // Wait 3 ticks (30 simulated min) before trying to restore AC\n    } else if (shedCooldown[h].ac === 0 && (s.grid_w + 2000) < thresholds.max_grid_w) {\n        acState = \"on\"; // Only restore AC if adding ~2000 W will NOT cause a new overload\n    }\n\n    if (lastCmds[h].ac !== acState) {\n        lastCmds[h].ac = acState;\n        outCmds.push({topic: `microgrid/${h}/cmd/load/ac`, payload: {state: acState}});\n        actions.push(`AC -> ${acState}`);\n    }\n}\nflow.set(\"shedCooldown\", shedCooldown);\nflow.set(\"lastCmds\", lastCmds);\n\n\n//5. Operational alarms (low battery or grid overload)\nlet alarmMsg = null;\nconst lastAlarms = flow.get(\"lastAlarms\") || {}; //to avoid duplicate alarms while a problem is still active\n\n//if the house has a battery and its charge is below the threshold\nif (s.battery_soc_pct !== null && s.battery_soc_pct < thresholds.min_soc_pct) {\n    if (lastAlarms[h] !== \"LOW_BATT\") { //if the alarm hasn't been sent yet\n        lastAlarms[h] = \"LOW_BATT\";\n        alarmMsg = {\n            topic: `microgrid/alarms/${h}`,\n            payload: {\n                home: h,\n                severity: \"WARNING\",\n                type: \"LOW_BATTERY\",\n                message: `${h.toUpperCase()} battery low (${s.battery_soc_pct}%)`\n            }\n        };\n    }\n//if the energy taken from the grid (consumed) is over the threshold\n} else if (s.grid_w > thresholds.max_grid_w + 1500) {\n    if (lastAlarms[h] !== \"OVERLOAD\") { //if the alarm hasn't been sent yet\n        lastAlarms[h] = \"OVERLOAD\";\n        alarmMsg = {\n            topic: `microgrid/alarms/${h}`,\n            payload: {\n                home: h,\n                severity: \"WARNING\",\n                type: \"GRID_OVERLOAD\",\n                message: `${h.toUpperCase()} grid overload (${s.grid_w} W)`\n            }\n        };\n    }\n} else {\n    lastAlarms[h] = null; //the alarm history is cleared \n}\nflow.set(\"lastAlarms\", lastAlarms); //the alarm history is updated\n\nconst decisionMsg = actions.length > 0\n    //action summary for microgrid/decisions/${h}\n    ? { topic: `microgrid/decisions/${h}`, payload: { home: h, sim_time: s.sim_time, actions: actions } }\n    : null;\n\nreturn [outCmds, decisionMsg, alarmMsg];\n//returns 3 exits:\n//  - outCmds: commands for the simulators, such as cmd/battery\n//  - decisionMsg: decision summary (decisions/{h})\n//  - alarmMsg: alerts (alarms/{h})",
         "outputs": 3,
         "timeout": 0,
         "noerr": 0,
@@ -730,7 +730,7 @@
         "type": "function",
         "z": "55f0786cb5b520b6",
         "name": "Prepare dashboard data",
-        "func": "const s = msg.payload;\nconst selected = flow.get(\"selected_home\") || \"h1\";\nconst tariff = global.get(\"current_tariff\") || { period: \"FLAT (0.15 €/kWh)\" };\nconst costs = global.get(\"costs\") || {};\nconst statuses = global.get(\"statuses\") || {};\n\n\n// 1. Comparative graph of grid consumption \nconst gridAllMsg = { topic: s.home.toUpperCase(), payload: s.grid_w };\n\n// 2. Simulated clock time and corresponding active tariff/prices\nconst clockMsg = { payload: `${s.sim_time} — ${tariff.period}` };\n\n// 3. Dynamic cumulative costs (€) for all homes\nconst homesMap = global.get(\"homes\") || {};\nconst homeIds = Object.keys(homesMap).sort();\nconst costStr = homeIds.map(id => `${id.toUpperCase()}: ${(costs[id] || 0).toFixed(2)} €`).join(\" | \");\nconst costMsg = { payload: costStr || \"Calculating...\" };\n\n// 4. Dynamic online/offline states for LWT\nconst statusStr = homeIds.map(id => `${id.toUpperCase()}: ${(statuses[id] || \"online\").toUpperCase()}`).join(\" | \");\nconst fleetMsg = { payload: statusStr || \"Waiting...\" };\n\n// 5-11. Widgets for the home selected in the dropdown\nif (s.home === selected) {\n    const solarMsg = { payload: s.generation_w }; //power generated by solar pannels\n    const consMsg = { payload: s.consumption_w };\n    const socMsg = { payload: s.battery_soc_pct !== null ? s.battery_soc_pct : 0 }; //current battery percentage (if applicable)\n    const batText = s.battery_soc_pct !== null ? s.battery_mode : \"none\";\n    const stateMsg = {\n        payload: `Battery: ${batText} | Shed: ${s.shed_loads.length ? s.shed_loads.join(\", \") : \"none\"}`\n    };\n    //curves to be shown in Home energy balance graph\n    const chartSolar = { topic: \"Solar (W)\", payload: s.generation_w };\n    const chartCons = { topic: \"Consumption (W)\", payload: s.consumption_w };\n    const chartGrid = { topic: \"Grid (W)\", payload: s.grid_w };\n\n    return [gridAllMsg, clockMsg, costMsg, fleetMsg, solarMsg, consMsg, socMsg, stateMsg, chartSolar, chartCons, chartGrid];\n}\n\nreturn [gridAllMsg, clockMsg, costMsg, fleetMsg, null, null, null, null, null, null, null];",
+        "func": "const s = msg.payload;\nconst selected = flow.get(\"selected_home\") || \"h1\";\nconst tariff = global.get(\"current_tariff\") || { period: \"FLAT (0.15 €/kWh)\" };\nconst costs = global.get(\"costs\") || {};\nconst statuses = global.get(\"statuses\") || {};\n\n// 1. Comparative graph of grid consumption \nconst gridAllMsg = { topic: s.home.toUpperCase(), payload: s.grid_w };\n\n// 2. Simulated clock time and corresponding active tariff/prices\nconst clockMsg = { payload: `${s.sim_time} — ${tariff.period}` };\n\n// 3. Dynamic cumulative costs (€) for all homes\nconst homesMap = global.get(\"homes\") || {};\nconst homeIds = Object.keys(homesMap).sort();\nconst costStr = homeIds.map(id => `${id.toUpperCase()}: ${(costs[id] || 0).toFixed(2)} €`).join(\" | \");\nconst costMsg = { payload: costStr || \"Calculating...\" };\n\n// 4. Dynamic online/offline states for LWT\nconst statusStr = homeIds.map(id => `${id.toUpperCase()}: ${(statuses[id] || \"online\").toUpperCase()}`).join(\" | \");\nconst fleetMsg = { payload: statusStr || \"Waiting...\" };\n\n// 5-11. Widgets for the home selected in the dropdown\nif (s.home === selected) {\n    const solarMsg = { payload: s.generation_w }; //power generated by solar pannels\n    const consMsg = { payload: s.consumption_w };\n    const socMsg = { payload: s.battery_soc_pct !== null ? s.battery_soc_pct : 0 }; //current battery percentage (if applicable)\n    const batText = s.battery_soc_pct !== null ? s.battery_mode : \"none\";\n    const stateMsg = {\n        payload: `Battery: ${batText} | Shed: ${s.shed_loads.length ? s.shed_loads.join(\", \") : \"none\"}`\n    };\n    //curves to be shown in Home energy balance graph\n    const chartSolar = { topic: \"Solar (W)\", payload: s.generation_w };\n    const chartCons = { topic: \"Consumption (W)\", payload: s.consumption_w };\n    const chartGrid = { topic: \"Grid (W)\", payload: s.grid_w };\n\n    return [gridAllMsg, clockMsg, costMsg, fleetMsg, solarMsg, consMsg, socMsg, stateMsg, chartSolar, chartCons, chartGrid];\n}\n\nreturn [gridAllMsg, clockMsg, costMsg, fleetMsg, null, null, null, null, null, null, null];",
         "outputs": 11,
         "timeout": 0,
         "noerr": 0,
@@ -744,7 +744,8 @@
                 "0c9f2f4edf7e5e74"
             ],
             [
-                "4fca57c2aac55745"
+                "4fca57c2aac55745",
+                "097803f22c023800"
             ],
             [
                 "1040158f6ef895e7"
@@ -805,8 +806,8 @@
         "pointShape": "circle",
         "pointRadius": 4,
         "showLegend": true,
-        "removeOlder": 1,
-        "removeOlderUnit": "3600",
+        "removeOlder": "10",
+        "removeOlderUnit": "60",
         "removeOlderPoints": "",
         "colors": [
             "#0095ff",
@@ -858,7 +859,7 @@
         "value": "payload",
         "valueType": "msg",
         "x": 580,
-        "y": 380,
+        "y": 420,
         "wires": []
     },
     {
@@ -882,7 +883,7 @@
         "value": "payload",
         "valueType": "msg",
         "x": 570,
-        "y": 420,
+        "y": 460,
         "wires": []
     },
     {
@@ -934,7 +935,7 @@
         "styleGlow": false,
         "className": "",
         "x": 600,
-        "y": 460,
+        "y": 500,
         "wires": [
             []
         ]
@@ -988,7 +989,7 @@
         "styleGlow": false,
         "className": "",
         "x": 590,
-        "y": 500,
+        "y": 540,
         "wires": [
             []
         ]
@@ -1042,7 +1043,7 @@
         "styleGlow": false,
         "className": "",
         "x": 590,
-        "y": 540,
+        "y": 580,
         "wires": [
             []
         ]
@@ -1068,7 +1069,7 @@
         "value": "payload",
         "valueType": "msg",
         "x": 570,
-        "y": 580,
+        "y": 620,
         "wires": []
     },
     {
@@ -1101,8 +1102,8 @@
         "pointShape": "circle",
         "pointRadius": 4,
         "showLegend": true,
-        "removeOlder": 1,
-        "removeOlderUnit": "3600",
+        "removeOlder": "10",
+        "removeOlderUnit": "60",
         "removeOlderPoints": "",
         "colors": [
             "#0095ff",
@@ -1128,7 +1129,7 @@
         "className": "",
         "interpolation": "linear",
         "x": 680,
-        "y": 620,
+        "y": 660,
         "wires": [
             []
         ]
@@ -1161,7 +1162,7 @@
         "iconInnerPosition": "inside",
         "spinner": "default",
         "x": 150,
-        "y": 680,
+        "y": 780,
         "wires": [
             [
                 "6f9db27e8c78e9c0"
@@ -1181,7 +1182,7 @@
         "finalize": "",
         "libs": [],
         "x": 400,
-        "y": 680,
+        "y": 780,
         "wires": [
             []
         ]
@@ -1230,7 +1231,7 @@
         "typeIsComboBox": true,
         "msgTrigger": "onChange",
         "x": 130,
-        "y": 740,
+        "y": 720,
         "wires": [
             [
                 "2bc0a19099cd4bb7"
@@ -1242,7 +1243,7 @@
         "type": "function",
         "z": "55f0786cb5b520b6",
         "name": "Set selected home",
-        "func": "flow.set(\"selected_home\", msg.payload);\nreturn null;",
+        "func": "flow.set(\"selected_home\", msg.payload);\nmsg.payload = [];\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -1250,9 +1251,11 @@
         "finalize": "",
         "libs": [],
         "x": 390,
-        "y": 740,
+        "y": 720,
         "wires": [
-            []
+            [
+                "258a6913ca99fb56"
+            ]
         ]
     },
     {
@@ -1304,7 +1307,7 @@
         "typeIsComboBox": true,
         "msgTrigger": "onChange",
         "x": 160,
-        "y": 800,
+        "y": 840,
         "wires": [
             [
                 "6bc1037fdbbca7bd"
@@ -1324,7 +1327,7 @@
         "finalize": "",
         "libs": [],
         "x": 430,
-        "y": 800,
+        "y": 840,
         "wires": [
             [
                 "852a35aded3835b1"
@@ -1346,7 +1349,7 @@
         "expiry": "",
         "broker": "4a8a2edb34d12a9f",
         "x": 730,
-        "y": 800,
+        "y": 840,
         "wires": []
     },
     {
@@ -1366,7 +1369,31 @@
         ]
     },
     {
-        "id": "7679c3cffbfbecae",
+        "id": "097803f22c023800",
+        "type": "ui-text",
+        "z": "55f0786cb5b520b6",
+        "group": "f4d44163058eb13a",
+        "order": 4,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Sim clock and tariff",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#717171",
+        "wrapText": false,
+        "className": "",
+        "value": "payload",
+        "valueType": "msg",
+        "x": 570,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "203faf829e0027f3",
         "type": "global-config",
         "env": [],
         "modules": {
